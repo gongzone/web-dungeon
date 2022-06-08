@@ -5,6 +5,7 @@ module.exports = {
     'next/core-web-vitals', // Needed to avoid warning in next.js build: 'The Next.js plugin was not detected in your ESLint configuration'
     'plugin:prettier/recommended',
   ],
+  ignorePatterns: ['*.js'],
   rules: {
     'prettier/prettier': [
       'error',

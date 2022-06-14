@@ -13,8 +13,8 @@ export enum UserRole {
   USER = 'user',
 }
 
-@Entity({ customRepository: () => UserRepository })
-@Unique({ properties: ['userId', 'email', 'nickname'] })
+@Entity({ tableName: 'users', customRepository: () => UserRepository })
+@Unique({ properties: ['username', 'email', 'nickname'] })
 export class User {
   [EntityRepositoryType]?: UserRepository
 
@@ -22,9 +22,9 @@ export class User {
   id!: number
 
   @Property()
-  userId!: string
+  username!: string
 
-  @Property()
+  @Property({ hidden: true })
   password!: string
 
   @Property()
@@ -35,6 +35,9 @@ export class User {
 
   @Enum({ items: () => UserRole, default: UserRole.USER })
   role!: UserRole
+
+  @Property({ hidden: true })
+  refreshToken?: string
 
   @Property()
   createdAt: Date = new Date()

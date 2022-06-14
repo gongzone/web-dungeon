@@ -1,26 +1,37 @@
 import { EntityRepository } from '@mikro-orm/postgresql'
-import { AuthCredentialsDto } from './dto'
+import { AuthCredentialsDto } from './dtos'
 import { User } from './user.entity'
 import * as argon from 'argon2'
 
 export class UserRepository extends EntityRepository<User> {
   async createUser(dto: AuthCredentialsDto): Promise<User> {
-    const { userId, password, email, nickname } = dto
+    const { username, password, email, nickname } = dto
 
-    // change password to hash
     const hashedPassword = await argon.hash(password)
 
-    // create user instance
     const user = this.create({
-      userId,
+      username,
       password: hashedPassword,
       email,
       nickname,
     })
 
-    // save instance to db
     await this.persistAndFlush(user)
 
     return user
+  }
+
+  async updateRefreshToken({
+    userId,
+    refreshToken,
+  }: {
+    userId: number
+    refreshToken: string
+  }): Promise<void> {
+    const hashedRefreshToken = await argon.hash(refreshToken)
+
+    await this.createQueryBuilder()
+      .update({ refreshToken: hashedRefreshToken })
+      .where({ id: userId })
   }
 }

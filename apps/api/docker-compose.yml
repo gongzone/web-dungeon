@@ -4,18 +4,18 @@ services:
     container_name: pg_container
     image: postgres:13
     ports:
-      - 5432:5432
+      - ${DB_PORT}:${DB_PORT}
     environment:
-      POSTGRES_USER: ${POSTGRES_USER_DEV}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_DEV}
-      POSTGRES_DB: ${POSTGRES_DB_DEV}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
 
   pgadmin:
     container_name: pgadmin4_container
     image: dpage/pgadmin4
     restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: 'dnjsqhwo@gmail.com'
-      PGADMIN_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD_DEV}
     ports:
-      - '5055:80'
+      - ${DB_ADMIN_PORT}:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${DB_ADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${DB_ADMIN_PASSWORD}

@@ -7,7 +7,7 @@ import {
   MinLength,
 } from 'class-validator'
 
-export class AuthCredentialsDto {
+export class SignupDto {
   @IsNotEmpty({ message: '공백은 허용되지 않습니다.' })
   @IsString()
   @MinLength(6, { message: '사용자 아이디는 최소 6자로 이루어져야 합니다.' })
@@ -40,4 +40,9 @@ export class AuthCredentialsDto {
     message: '닉네임은 한글 및 영어 또는 숫자로만 이루어져야 합니다.',
   })
   nickname: string
+}
+
+export class SigninDto {
+  username: string
+  password: string
 }

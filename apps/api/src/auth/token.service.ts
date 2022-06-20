@@ -11,7 +11,7 @@ export class TokenService {
     private readonly configService: ConfigService,
   ) {}
 
-  sendCookiewithRefreshToken({
+  sendCookieWithRefreshToken({
     refreshToken,
     res,
   }: {

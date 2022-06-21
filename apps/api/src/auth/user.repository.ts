@@ -1,6 +1,10 @@
-import { ForbiddenException } from '@nestjs/common'
+import {
+  ConflictException,
+  ForbiddenException,
+  InternalServerErrorException,
+} from '@nestjs/common'
 import { EntityRepository } from '@mikro-orm/postgresql'
-import { SignupDto, SigninDto } from './dtos'
+import { SignupDto } from './dtos'
 import { User } from './user.entity'
 import * as argon from 'argon2'
 
@@ -17,22 +21,32 @@ export class UserRepository extends EntityRepository<User> {
       nickname,
     })
 
-    await this.persistAndFlush(user)
-
+    try {
+      await this.persistAndFlush(user)
+    } catch (error) {
+      if (error.code === '23505') throw new ConflictException(error.detail)
+      else throw new InternalServerErrorException('서버 에러가 발생하였습니다.')
+    }
     return user
   }
 
-  async findUser(dto: SigninDto): Promise<User> {
+  async findUserForRefresh({
+    userId,
+    refreshToken,
+  }: {
+    userId: number
+    refreshToken: string
+  }): Promise<User> {
     const user = await this.findOne({
-      username: dto.username,
+      id: userId,
     })
 
-    if (!user) throw new ForbiddenException('사용자 아이디를 찾을 수 없습니다.')
+    if (!user) throw new ForbiddenException('해당 유저를 찾을 수 없습니다.')
 
-    const passwordMatches = await argon.verify(user.password, dto.password)
+    const refreshMatches = await argon.verify(user.refreshToken, refreshToken)
 
-    if (!passwordMatches)
-      throw new ForbiddenException('사용자 비밀번호가 잘못되었습니다.')
+    if (!refreshMatches)
+      throw new ForbiddenException('리프레쉬 토큰 정보가 올바르지 않습니다.')
 
     return user
   }
@@ -44,7 +58,9 @@ export class UserRepository extends EntityRepository<User> {
     userId: number
     refreshToken: string
   }): Promise<void> {
-    const hashedRefreshToken = await argon.hash(refreshToken)
+    const hashedRefreshToken = refreshToken
+      ? await argon.hash(refreshToken)
+      : null
 
     await this.createQueryBuilder()
       .update({ refreshToken: hashedRefreshToken })

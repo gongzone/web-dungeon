@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { Response } from 'express'
 import { SignupDto, SigninDto } from './dtos'
 import { TokenService } from './token.service'
 import { UserRepository } from './user.repository'
+import * as argon from 'argon2'
+import { User } from './user.entity'
 
 @Injectable()
 export class AuthService {
@@ -11,60 +13,73 @@ export class AuthService {
     private readonly tokenService: TokenService,
   ) {}
 
-  async signup(dto: SignupDto, res: Response) {
-    const { username, password, email, nickname } = dto
+  async signup(dto: SignupDto, res: Response): Promise<{ token: string }> {
+    const createdUser = await this.userRepository.createUser(dto)
 
-    // 유저 생성
-    const createdUser = await this.userRepository.createUser({
-      username,
-      password,
-      email,
-      nickname,
+    const tokens = await this.tokenService.generateAllToken({
+      userId: createdUser.id,
+      username: createdUser.username,
     })
 
-    // 토큰 생성
-    const { accessToken, refreshToken } =
-      await this.tokenService.generateAllToken({
-        userId: createdUser.id,
-        username: createdUser.username,
-      })
-
-    // refresh 토큰, 유저 db에 업데이트
     await this.userRepository.updateRefreshToken({
       userId: createdUser.id,
-      refreshToken,
+      refreshToken: tokens.refreshToken,
     })
 
-    // refresh 토큰, 쿠키에 담아서 클라이언트 측으로 전달
-    this.tokenService.sendCookieWithRefreshToken({ refreshToken, res })
+    this.tokenService.setAuthCookie(tokens.refreshToken, res)
 
-    // access 토큰, JSON payload로 전달
-    return { token: accessToken }
+    return { token: tokens.accessToken }
   }
 
-  async signin(dto: SigninDto, res: Response) {
-    // 로그인 시 입력한 정보에 따른 특정 유저 찾기
-    const user = await this.userRepository.findUser(dto)
+  async signin(dto: SigninDto, res: Response): Promise<{ token: string }> {
+    const { username, password } = dto
+    const user = await this.userRepository.findOne({ username })
 
-    // 토큰 생성
-    const { accessToken, refreshToken } =
-      await this.tokenService.generateAllToken({
-        userId: user.id,
-        username: user.username,
-      })
+    if (!user)
+      throw new UnauthorizedException('사용자 아이디를 찾을 수 없습니다.')
 
-    // refresh 토큰, 유저 db에 업데이트
+    const passwordMatches = await argon.verify(user.password, password)
+
+    if (!passwordMatches)
+      throw new UnauthorizedException('사용자 비밀번호가 잘못되었습니다.')
+
+    const tokens = await this.tokenService.generateAllToken({
+      userId: user.id,
+      username: user.username,
+    })
+
     await this.userRepository.updateRefreshToken({
       userId: user.id,
-      refreshToken,
+      refreshToken: tokens.refreshToken,
     })
 
-    // refresh 토큰, 쿠키에 담아서 클라이언트 측으로 전달
-    this.tokenService.sendCookieWithRefreshToken({ refreshToken, res })
+    this.tokenService.setAuthCookie(tokens.refreshToken, res)
 
-    // access 토큰, JSON payload로 전달
-    return { token: accessToken }
+    return { token: tokens.accessToken }
   }
 
-  // logout() {}
+  async logout(userId: number): Promise<{ message: string }> {
+    await this.userRepository.updateRefreshToken({
+      userId,
+      refreshToken: null,
+    })
+
+    return { message: '로그아웃이 성공적으로 이루어졌습니다.' }
+  }
+
+  async silentRefresh(user: User, res: Response): Promise<{ token: string }> {
+    const tokens = await this.tokenService.generateAllToken({
+      userId: user.id,
+      username: user.username,
+    })
+
+    await this.userRepository.updateRefreshToken({
+      userId: user.id,
+      refreshToken: tokens.refreshToken,
+    })
+
+    this.tokenService.setAuthCookie(tokens.refreshToken, res)
+
+    return { token: tokens.accessToken }
+  }
 }

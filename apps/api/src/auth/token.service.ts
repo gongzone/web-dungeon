@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Response } from 'express'
 import { ITokenPayload } from './interfaces'
+import * as argon from 'argon2'
 
 @Injectable()
 export class TokenService {
@@ -11,14 +12,19 @@ export class TokenService {
     private readonly configService: ConfigService,
   ) {}
 
-  sendCookieWithRefreshToken({
-    refreshToken,
-    res,
-  }: {
-    refreshToken: string
-    res: Response
-  }): void {
-    res.cookie('auth-cookie', refreshToken, { httpOnly: true, secure: true })
+  setAuthCookie(refreshToken: string, res: Response): void {
+    const secureOption = process.env.NODE_ENV == 'production' ? true : false
+    res.cookie('auth-cookie', refreshToken, {
+      httpOnly: true,
+      secure: secureOption,
+    })
+  }
+
+  async verifyToken(hashed: string, notHashed: string) {
+    const refreshMatches = await argon.verify(hashed, notHashed)
+
+    if (!refreshMatches)
+      throw new UnauthorizedException('리프레쉬 토큰 정보가 올바르지 않습니다.')
   }
 
   async generateAllToken({
@@ -39,7 +45,7 @@ export class TokenService {
   }: ITokenPayload): Promise<string> {
     const accessToken = this.jwtService.signAsync(
       {
-        sub: userId,
+        userId,
         username,
       },
       {
@@ -57,11 +63,11 @@ export class TokenService {
   }: ITokenPayload): Promise<string> {
     const RefreshToken = this.jwtService.signAsync(
       {
-        sub: userId,
+        userId,
         username,
       },
       {
-        secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
+        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
         expiresIn: 60 * 60 * 24 * 7,
       },
     )

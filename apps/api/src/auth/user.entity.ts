@@ -4,7 +4,6 @@ import {
   Enum,
   PrimaryKey,
   Property,
-  Unique,
 } from '@mikro-orm/core'
 import { UserRepository } from './user.repository'
 
@@ -14,29 +13,28 @@ export enum UserRole {
 }
 
 @Entity({ tableName: 'users', customRepository: () => UserRepository })
-@Unique({ properties: ['username', 'email', 'nickname'] })
 export class User {
   [EntityRepositoryType]?: UserRepository
 
   @PrimaryKey()
   id!: number
 
-  @Property()
+  @Property({ unique: true })
   username!: string
 
   @Property({ hidden: true })
   password!: string
 
-  @Property()
+  @Property({ unique: true })
   email!: string
 
-  @Property()
+  @Property({ unique: true })
   nickname!: string
 
   @Enum({ items: () => UserRole, default: UserRole.USER })
   role!: UserRole
 
-  @Property({ hidden: true })
+  @Property({ unique: true, hidden: true, default: null })
   refreshToken?: string
 
   @Property()

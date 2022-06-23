@@ -1,3 +1,5 @@
+const { off } = require('process')
+
 module.exports = {
   // Configuration for JavaScript files
   extends: [
@@ -5,6 +7,11 @@ module.exports = {
     'plugin:prettier/recommended',
     'plugin:storybook/recommended',
   ],
+  settings: {
+    react: {
+      version: 'detect',
+    },
+  },
   rules: {
     'prettier/prettier': [
       'error',
@@ -29,14 +36,8 @@ module.exports = {
     // Configuration for TypeScript files
     {
       files: ['**/*.ts', '**/*.tsx'],
-      plugins: [
-        '@typescript-eslint',
-        'unused-imports',
-        'tailwindcss',
-        'simple-import-sort',
-      ],
+      plugins: ['@typescript-eslint', 'unused-imports'],
       extends: [
-        'plugin:tailwindcss/recommended',
         'airbnb-typescript',
         'plugin:prettier/recommended',
         'plugin:react/recommended',
@@ -55,6 +56,9 @@ module.exports = {
             endOfLine: 'auto',
           },
         ],
+        'prefer-destructuring': 'off',
+        'import/extensions': 'off',
+        'react/prop-types': 'off',
         'react/destructuring-assignment': 'off',
         'react/react-in-jsx-scope': 'off',
         // Vscode doesn't support automatically destructuring, it's a pain to add a new variable
@@ -65,8 +69,6 @@ module.exports = {
         'react/jsx-props-no-spreading': 'off',
         // _app.tsx uses spread operator and also, react-hook-form
         'react-hooks/exhaustive-deps': 'off',
-        // Incorrectly report needed dependency with Next.js router
-        '@next/next/no-img-element': 'off',
         // We currently not using next/image because it isn't supported with SSG mode
         '@typescript-eslint/comma-dangle': 'off',
         // Avoid conflict rule between Eslint and Prettier
@@ -75,16 +77,6 @@ module.exports = {
         'import/prefer-default-export': 'off',
         // Named export is easier to refactor automatically
         'import/no-extraneous-dependencies': 'off',
-        'tailwindcss/classnames-order': [
-          'warn',
-          {
-            officialSorting: true,
-          },
-        ],
-        // Follow the same ordering as the official plugin `prettier-plugin-tailwindcss`
-        'simple-import-sort/imports': 'error',
-        // Import configuration for `eslint-plugin-simple-import-sort`
-        'simple-import-sort/exports': 'error',
         // Export configuration for `eslint-plugin-simple-import-sort`
         '@typescript-eslint/no-unused-vars': 'off',
         'unused-imports/no-unused-imports': 'error',

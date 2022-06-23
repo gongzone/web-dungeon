@@ -1,1 +1,2 @@
-export * from './src/Button'
+export * from './src/components'
+export * from './src/global'

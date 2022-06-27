@@ -15,8 +15,8 @@ export const GlobalStyle = createGlobalStyle`
 
   body {
     margin: 0;
-    color: ${({ theme }) => theme.colors.text};
-    background-color: ${({ theme }) => theme.colors.bg};
+    color: ${({ theme }) => theme.colors.white.base};
+    background-color: ${({ theme }) => theme.colors.black.base};
     font-family: ${({ theme }) => theme.fonts.base};
     letter-spacing: ${({ theme }) => theme.letterSpacings.base};
     line-height: ${({ theme }) => theme.lineHeights.lg};
@@ -26,5 +26,4 @@ export const GlobalStyle = createGlobalStyle`
     width: 90%;
     margin: 0 auto;
   }
-
 `

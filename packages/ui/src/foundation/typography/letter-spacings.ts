@@ -8,3 +8,5 @@ export const letterSpacings = {
   xl: sizes[4],
   xxl: sizes[5],
 }
+
+export type LetterSpacingsType = typeof letterSpacings

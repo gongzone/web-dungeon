@@ -1,9 +1,12 @@
 import React from 'react'
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { ThemeProvider } from 'styled-components'
 
-import { PrimaryBtn, SecondaryBtn, GlobalStyle, defaultTheme } from 'ui'
+import { ThemeProvider } from 'styled-components'
+import { AiFillPlusCircle } from 'react-icons/ai'
+import { BsFillAlarmFill } from 'react-icons/bs'
+
+import { Button, GlobalStyle, defaultTheme } from 'ui'
 
 const Home: NextPage = () => {
   return (
@@ -30,13 +33,30 @@ const Home: NextPage = () => {
               display: 'flex',
               justifyContent: 'space-around',
               alignItems: 'center',
-              backgroundColor: 'white',
               width: '500px',
               height: '500px',
             }}
           >
-            <PrimaryBtn>제출</PrimaryBtn>
-            <SecondaryBtn>로그인</SecondaryBtn>
+            <Button kind="primary" size="sm">
+              제출
+              <AiFillPlusCircle />
+            </Button>
+            <Button kind="primary" appearance="outline">
+              닫기 <BsFillAlarmFill />
+            </Button>
+            <Button kind="danger" size="lg" fullWidth disabled>
+              <AiFillPlusCircle />
+              로그인
+            </Button>
+            <Button kind="primary" size="sm" iconOnly disabled>
+              <BsFillAlarmFill />
+            </Button>
+            <Button kind="danger" size="md" iconOnly>
+              <BsFillAlarmFill />
+            </Button>
+            <Button kind="danger" appearance="ghost" size="lg" iconOnly>
+              <BsFillAlarmFill />
+            </Button>
           </div>
         </div>
       </ThemeProvider>

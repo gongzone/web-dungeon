@@ -1,57 +1,20 @@
 import 'styled-components'
+import {
+  type ColorsType,
+  type FontesType,
+  type FontSizesType,
+  type LetterSpacingsType,
+  type LineHeightsType,
+  type BreakpointsType,
+} from '../foundation'
 
 declare module 'styled-components' {
   export interface DefaultTheme {
-    colors: {
-      text: string
-      bg: string
-      primaryBtnColor: stirng
-      primaryBtnBg: stirng
-      primaryBtnHover: string
-      secondaryBtnColor: string
-      secondaryBtnBg: string
-      secondaryBtnHover: string
-    }
-
-    fonts: {
-      base: string
-    }
-
-    fontSizes: {
-      xs: string
-      sm: string
-      base: string
-      lg: string
-      xl: string
-      xxl: string
-      xxxl: string
-    }
-
-    letterSpacings: {
-      xs: string
-      sm: string
-      base: string
-      lg: string
-      xl: string
-      xxl: string
-    }
-
-    lineHeights: {
-      xs: string
-      sm: string
-      base: string
-      lg: string
-      xl: string
-      xxl: string
-      xxxl: string
-    }
-
-    breakpoints: {
-      sm: string
-      md: string
-      lg: string
-      xl: string
-      xxl: string
-    }
+    colors: ColorsType
+    fonts: FontesType
+    fontSizes: FontSizesType
+    letterSpacings: LetterSpacingsType
+    lineHeights: LineHeightsType
+    breakpoints: BreakpointsType
   }
 }

@@ -17,3 +17,5 @@ export const fontSizes = {
   xxl: sizes[5],
   xxxl: sizes[6],
 }
+
+export type FontSizesType = typeof fontSizes

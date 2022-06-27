@@ -17,3 +17,5 @@ export const lineHeights = {
   xxl: sizes[5],
   xxxl: sizes[6],
 }
+
+export type LineHeightsType = typeof lineHeights
